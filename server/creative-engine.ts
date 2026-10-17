@@ -117,7 +117,7 @@ export class CreativeEngine {
   };
 
   public static generateImage(opts: CreativeImageOptions): { imageUrl: string; revisedPrompt: string } {
-    const text = `${opts.prompt} ${opts.segment || ''} ${opts.companyName || ''}`.toLowerCase();
+    const text = `${opts.prompt} ${opts.segment || ''} ${opts.companyName || ''} ${opts.headline || ''}`.toLowerCase();
     const format = opts.aspectRatio || '1:1';
 
     let category = 'general_advertising';
@@ -143,6 +143,13 @@ export class CreativeEngine {
     ) {
       category = 'web_sites_and_ads';
     } else if (
+      ['pizza', 'hamburg', 'comida', 'restaurante', 'gastronomia', 'alimenta', 'lanche', 'sabor',
+       'café', 'cafe', 'padaria', 'confeitaria', 'doceria', 'bolo', 'sorvete', 'açaí', 'acai',
+       'churrasc', 'marmita', 'bar ', 'delivery'].some(k => text.includes(k))
+    ) {
+      // Gastronomia vem ANTES da regra de luxo/dourado: "Pizza de Ouro" é comida, não joia.
+      category = 'gastronomy';
+    } else if (
       text.includes('dourad') ||
       text.includes('ouro') ||
       text.includes('luxo') ||
@@ -151,17 +158,6 @@ export class CreativeEngine {
       text.includes('jóia')
     ) {
       category = 'gold_green_tech';
-    } else if (
-      text.includes('pizza') ||
-      text.includes('hamburguer') ||
-      text.includes('comida') ||
-      text.includes('restaurante') ||
-      text.includes('gastronomia') ||
-      text.includes('lanche') ||
-      text.includes('sabor') ||
-      text.includes('café')
-    ) {
-      category = 'gastronomy';
     } else if (
       text.includes('empresa') ||
       text.includes('advocacia') ||
@@ -182,7 +178,14 @@ export class CreativeEngine {
       hash = (hash << 5) - hash + text.charCodeAt(i);
       hash |= 0;
     }
-    const index = Math.abs(hash) % formatPool.length;
+    let index = Math.abs(hash) % formatPool.length;
+    if (category === 'gastronomy') {
+      const preferred = text.includes('pizza') ? 'photo-1513104890138'
+        : text.includes('hamburg') ? 'photo-1568901346375'
+        : '';
+      const found = preferred ? formatPool.findIndex(u => u.includes(preferred)) : -1;
+      if (found >= 0) index = found;
+    }
     const baseImageUrl = formatPool[index];
 
     const categoryLabels: Record<string, string> = {
