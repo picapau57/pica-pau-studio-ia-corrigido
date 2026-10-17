@@ -1,0 +1,6 @@
+{
+  "name": "Pica-Pau Studio IA",
+  "description": "Plataforma profissional de criação de imagens com DALL-E 3, vídeos, anúncios publicitários e campanhas com inteligência artificial.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
